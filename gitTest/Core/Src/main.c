@@ -66,7 +66,7 @@ static void MX_USART2_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	// Test comment for git
+	// Test comment from other PC
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
