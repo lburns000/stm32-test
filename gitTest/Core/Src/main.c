@@ -1,5 +1,6 @@
 /* USER CODE BEGIN Header */
 /**
+  * Using OLED driver library and fonts library that I modified courtesy of Tilen Majerle and Alexander Lutsai
   ******************************************************************************
   * @file           : main.c
   * @brief          : Main program body
@@ -22,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "ssd1306.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
