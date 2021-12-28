@@ -24,11 +24,12 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "ssd1306.h"
+#include "GPIOController.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+//extern FontDef_t Font11x18;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -55,7 +56,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
-
+void printButtons();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -96,16 +97,29 @@ int main(void)
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   SSD1306_Init();
-
+  GPIOController_init();
   SSD1306_GotoXY(23, 25);
   SSD1306_Puts("Welcome", &Font_11x18, 1);
   SSD1306_UpdateScreen();
+  HAL_Delay(1000);
+  SSD1306_Clear();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint8_t myButtons = 0x00;
+  char status[25];
   while (1)
   {
+	  myButtons = GPIOController_getButtonState();
+	  sprintf(status, "0x%x", myButtons);
+	  SSD1306_GotoXY(23, 25);
+	  SSD1306_Puts("    ", &Font_11x18, 1);
+	  SSD1306_GotoXY(23, 25);
+	  SSD1306_Puts(status, &Font_11x18, 1);
+	  SSD1306_UpdateScreen();
+	  printButtons();
+	  HAL_Delay(1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -249,6 +263,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : PC0 PC1 PC2 PC3
+                           PC4 PC5 PC6 PC7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
+                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
   /*Configure GPIO pin : LD2_Pin */
   GPIO_InitStruct.Pin = LD2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -259,7 +281,26 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void printButtons() {
+	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_ACTION)) {
+		HAL_UART_Transmit(&huart2, "Action Button Pressed\n", 22, 10);
+	}
+	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_SECONDARY)) {
+		HAL_UART_Transmit(&huart2, "Secondary Button Pressed\n", 25, 10);
+	}
+	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_UP)) {
+		HAL_UART_Transmit(&huart2, "UP Button Pressed\n", 18, 10);
+	}
+	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_RIGHT)) {
+		HAL_UART_Transmit(&huart2, "Right Button Pressed\n", 21, 10);
+	}
+	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_DOWN)) {
+		HAL_UART_Transmit(&huart2, "Down Button Pressed\n", 20, 10);
+	}
+	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_LEFT)) {
+		HAL_UART_Transmit(&huart2, "Left Button Pressed\n", 20, 10);
+	}
+}
 /* USER CODE END 4 */
 
 /**
