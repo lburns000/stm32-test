@@ -31,14 +31,14 @@ uint8_t GPIOController_getButtonState() {
 
 uint8_t GPIOController_readButtonPressed(uint8_t button) {
 	GPIOController_getButtonState();
-	return (button | GPIOController.status);
+	return (button & GPIOController.status);
 }
 
 uint8_t GPIOController_readButtonReleased(uint8_t button) {
 	GPIOController_getButtonState();
-	return (!(button | GPIOController.status));
+	return (!(button & GPIOController.status));
 }
 
 void GPIOController_debounceButton() {
-	HAL_Delay(50);
+	HAL_Delay(50);	// TODO: replace with timer and interrupt
 }

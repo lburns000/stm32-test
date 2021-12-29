@@ -56,7 +56,8 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
-void printButtons();
+void printButtons(uint8_t reg);
+void drawScreen();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -108,17 +109,11 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   uint8_t myButtons = 0x00;
-  char status[25];
   while (1)
   {
 	  myButtons = GPIOController_getButtonState();
-	  sprintf(status, "0x%x", myButtons);
-	  SSD1306_GotoXY(23, 25);
-	  SSD1306_Puts("    ", &Font_11x18, 1);
-	  SSD1306_GotoXY(23, 25);
-	  SSD1306_Puts(status, &Font_11x18, 1);
-	  SSD1306_UpdateScreen();
-	  printButtons();
+	  drawScreen();
+	  printButtons(myButtons);
 	  HAL_Delay(1);
     /* USER CODE END WHILE */
 
@@ -281,25 +276,42 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void printButtons() {
-	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_ACTION)) {
+void printButtons(uint8_t reg) {
+	char temp[21];
+	sprintf(temp, "Current status: 0x%02x\n", reg);
+	HAL_UART_Transmit(&huart2, temp, 21, 10);
+
+	if (GPIOCONTROLLER_BUTTON_ACTION & reg) {
 		HAL_UART_Transmit(&huart2, "Action Button Pressed\n", 22, 10);
 	}
-	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_SECONDARY)) {
-		HAL_UART_Transmit(&huart2, "Secondary Button Pressed\n", 25, 10);
+	if (GPIOCONTROLLER_BUTTON_SECONDARY & reg) {
+			HAL_UART_Transmit(&huart2, "Secondary Button Pressed\n", 25, 10);
+		}
+	if (GPIOCONTROLLER_BUTTON_UP & reg) {
+			HAL_UART_Transmit(&huart2, "UP Button Pressed\n", 18, 10);
+		}
+	if (GPIOCONTROLLER_BUTTON_RIGHT & reg) {
+			HAL_UART_Transmit(&huart2, "RIGHT Button Pressed\n", 21, 10);
+		}
+	if (GPIOCONTROLLER_BUTTON_DOWN & reg) {
+			HAL_UART_Transmit(&huart2, "DOWN Button Pressed\n", 20, 10);
+		}
+	if (GPIOCONTROLLER_BUTTON_LEFT & reg) {
+			HAL_UART_Transmit(&huart2, "LEFT Button Pressed\n", 20, 10);
+		}
+}
+
+void drawScreen() {
+	// Draw the buttons pressed on the OLED screen
+	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_ACTION)) {
+
 	}
-	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_UP)) {
-		HAL_UART_Transmit(&huart2, "UP Button Pressed\n", 18, 10);
-	}
-	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_RIGHT)) {
-		HAL_UART_Transmit(&huart2, "Right Button Pressed\n", 21, 10);
-	}
-	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_DOWN)) {
-		HAL_UART_Transmit(&huart2, "Down Button Pressed\n", 20, 10);
-	}
-	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_LEFT)) {
-		HAL_UART_Transmit(&huart2, "Left Button Pressed\n", 20, 10);
-	}
+
+	SSD1306_GotoXY(23, 25);
+	SSD1306_Puts("    ", &Font_11x18, 1);
+	SSD1306_GotoXY(23, 25);
+	SSD1306_Puts(status, &Font_11x18, 1);
+	SSD1306_UpdateScreen();
 }
 /* USER CODE END 4 */
 
