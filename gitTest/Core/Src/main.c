@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "ssd1306.h"
 #include "GPIOController.h"
+#include "ball.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,11 +58,15 @@ static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 void printButtons(uint8_t reg); // For debug
+void drawBallAnimation();
+void ballControl(uint8_t reg);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint8_t ball[] = {
+		0x06, 0x0F, 0x0F, 0x06
+};
 /* USER CODE END 0 */
 
 /**
@@ -106,11 +111,14 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  drawBallAnimation();
+  SSD1306_Clear();
+
   uint8_t myButtons = 0x00;
   while (1)
   {
 	  myButtons = GPIOController_getButtonState();
-	  printButtons(myButtons);
+	  ballControl(myButtons);
 	  HAL_Delay(1);
     /* USER CODE END WHILE */
 
@@ -336,6 +344,56 @@ void printButtons(uint8_t reg) {
 		SSD1306_Puts("  ", &Font_11x18, 1);
 	}
 
+	SSD1306_UpdateScreen();
+}
+
+void drawBallAnimation() {
+	ball_init();
+	for (int x = 2; x + 4 <= WIDTH - 3; x += 4) {
+		ball_setPosition(x, HEIGHT >> 1);
+		ball_draw();
+		SSD1306_UpdateScreen();
+		HAL_Delay(50);
+	}
+	for (int x = WIDTH - 3; x - 4 >= 0; x -= 4) {
+		ball_setPosition(x, HEIGHT >> 1);
+		ball_draw();
+		SSD1306_UpdateScreen();
+		HAL_Delay(50);
+	}
+}
+
+void ballControl(uint8_t reg) {
+	int x = ball_getX();
+	int y = ball_getY();
+
+	if (GPIOCONTROLLER_BUTTON_UP & reg) {
+		HAL_UART_Transmit(&huart2, "UP Button Pressed\n", 18, 10);
+		if (y - 4 >= 2) {
+			y -= 4;
+		}
+	}
+	if (GPIOCONTROLLER_BUTTON_RIGHT & reg) {
+		HAL_UART_Transmit(&huart2, "RIGHT Button Pressed\n", 21, 10);
+		if (x + 4 < WIDTH - 2) {
+			x += 4;
+		}
+	}
+	if (GPIOCONTROLLER_BUTTON_DOWN & reg) {
+		HAL_UART_Transmit(&huart2, "DOWN Button Pressed\n", 20, 10);
+		if (y + 4 < HEIGHT - 2) {
+			y += 4;
+		}
+	}
+	if (GPIOCONTROLLER_BUTTON_LEFT & reg) {
+		HAL_UART_Transmit(&huart2, "LEFT Button Pressed\n", 20, 10);
+		if (x - 4 >= 2) {
+			x -= 4;
+		}
+	}
+
+	ball_setPosition(x, y);
+	ball_draw();
 	SSD1306_UpdateScreen();
 }
 /* USER CODE END 4 */
