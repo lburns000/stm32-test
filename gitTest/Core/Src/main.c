@@ -71,8 +71,7 @@ void printButtons(uint8_t reg); // For debug
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	// Test comment from other PC
-	// Test comment from another PC
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
