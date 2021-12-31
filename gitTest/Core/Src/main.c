@@ -56,8 +56,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
-void printButtons(uint8_t reg);
-void drawScreen();
+void printButtons(uint8_t reg); // For debug
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -112,7 +111,6 @@ int main(void)
   while (1)
   {
 	  myButtons = GPIOController_getButtonState();
-	  drawScreen();
 	  printButtons(myButtons);
 	  HAL_Delay(1);
     /* USER CODE END WHILE */
@@ -277,40 +275,68 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void printButtons(uint8_t reg) {
-	char temp[21];
+	char temp[22];
 	sprintf(temp, "Current status: 0x%02x\n", reg);
 	HAL_UART_Transmit(&huart2, temp, 21, 10);
 
 	if (GPIOCONTROLLER_BUTTON_ACTION & reg) {
 		HAL_UART_Transmit(&huart2, "Action Button Pressed\n", 22, 10);
+		SSD1306_GotoXY(112, 22);
+		SSD1306_Puts("A", &Font_11x18, 1);
 	}
+	else {
+		SSD1306_GotoXY(112, 22);
+		SSD1306_Puts(" ", &Font_11x18, 1);
+	}
+
 	if (GPIOCONTROLLER_BUTTON_SECONDARY & reg) {
-			HAL_UART_Transmit(&huart2, "Secondary Button Pressed\n", 25, 10);
-		}
-	if (GPIOCONTROLLER_BUTTON_UP & reg) {
-			HAL_UART_Transmit(&huart2, "UP Button Pressed\n", 18, 10);
-		}
-	if (GPIOCONTROLLER_BUTTON_RIGHT & reg) {
-			HAL_UART_Transmit(&huart2, "RIGHT Button Pressed\n", 21, 10);
-		}
-	if (GPIOCONTROLLER_BUTTON_DOWN & reg) {
-			HAL_UART_Transmit(&huart2, "DOWN Button Pressed\n", 20, 10);
-		}
-	if (GPIOCONTROLLER_BUTTON_LEFT & reg) {
-			HAL_UART_Transmit(&huart2, "LEFT Button Pressed\n", 20, 10);
-		}
-}
-
-void drawScreen() {
-	// Draw the buttons pressed on the OLED screen
-	if (GPIOController_readButtonPressed(GPIOCONTROLLER_BUTTON_ACTION)) {
-
+		HAL_UART_Transmit(&huart2, "Secondary Button Pressed\n", 25, 10);
+		SSD1306_GotoXY(96, 22);
+		SSD1306_Puts("B", &Font_11x18, 1);
+	}
+	else {
+		SSD1306_GotoXY(96, 22);
+		SSD1306_Puts(" ", &Font_11x18, 1);
 	}
 
-	SSD1306_GotoXY(23, 25);
-	SSD1306_Puts("    ", &Font_11x18, 1);
-	SSD1306_GotoXY(23, 25);
-	SSD1306_Puts(status, &Font_11x18, 1);
+	if (GPIOCONTROLLER_BUTTON_UP & reg) {
+		HAL_UART_Transmit(&huart2, "UP Button Pressed\n", 18, 10);
+		SSD1306_GotoXY(32, 0);
+		SSD1306_Puts("UP", &Font_11x18, 1);
+	}
+	else {
+		SSD1306_GotoXY(32,0);
+		SSD1306_Puts("  ", &Font_11x18, 1);
+	}
+
+	if (GPIOCONTROLLER_BUTTON_RIGHT & reg) {
+		HAL_UART_Transmit(&huart2, "RIGHT Button Pressed\n", 21, 10);
+		SSD1306_GotoXY(64, 22);
+		SSD1306_Puts("RT", &Font_11x18, 1);
+	}
+	else {
+		SSD1306_GotoXY(64, 22);
+		SSD1306_Puts("  ", &Font_11x18, 1);
+	}
+
+	if (GPIOCONTROLLER_BUTTON_DOWN & reg) {
+		HAL_UART_Transmit(&huart2, "DOWN Button Pressed\n", 20, 10);
+		SSD1306_GotoXY(32, 45);
+		SSD1306_Puts("DN", &Font_11x18, 1);
+	} else {
+		SSD1306_GotoXY(32, 45);
+		SSD1306_Puts("  ", &Font_11x18, 1);
+	}
+
+	if (GPIOCONTROLLER_BUTTON_LEFT & reg) {
+		HAL_UART_Transmit(&huart2, "LEFT Button Pressed\n", 20, 10);
+		SSD1306_GotoXY(0, 22);
+		SSD1306_Puts("LT", &Font_11x18, 1);
+	} else {
+		SSD1306_GotoXY(0, 22);
+		SSD1306_Puts("  ", &Font_11x18, 1);
+	}
+
 	SSD1306_UpdateScreen();
 }
 /* USER CODE END 4 */
