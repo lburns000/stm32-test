@@ -4,4 +4,4 @@
 *.o
 Debug
 .settings
-.launch
+*.launch
